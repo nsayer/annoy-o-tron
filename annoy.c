@@ -18,8 +18,6 @@
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define F_CPU (500000UL)
-
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -61,8 +59,6 @@ void __ATTR_NORETURN__ main() {
   PRR = _BV(PRADC); // turn off the ADC's power, which probably is a no-op on the tiny9.
 
   // set up 500 kHz system clock
-  CCP = 0xd8; // double-secret probation
-  CLKPSR = _BV(CLKPS2); // divide by 16. The clock source is the 8 MHz RC osc.
 
   PUEB = _BV(0) | _BV(1); // force unused pins to a definite state
   DDRB = _BV(2); // B2 is the speaker
@@ -79,23 +75,29 @@ void __ATTR_NORETURN__ main() {
 
   while(1) {
 
-    uint16_t start, duration;
+    uint16_t duration;
 
     // First, we beep
+
+    // 1 MHz system clock
+    CCP = 0xd8; // double-secret probation
+    CLKMSR = 0; // select the 8 MHz clock
+    CCP = 0xd8;
+    CLKPSR = _BV(CLKPS0) | _BV(CLKPS1); // divide by 8.
 
     uint16_t freq = q_rand(5);
     TCCR0B = 0; // stop
     TCNT0 = 0; // reset count
-    switch(freq) {
-      case 1: OCR0A = 500 - 1; duration = 250; break; // 500 Hz.
-      case 2: OCR0A = 250 - 1; duration = 500; break; // 1 kHz
-      case 3: OCR0A = 167 - 1; duration = 750; break; // 1.5 kHz
-      case 4: OCR0A = 125 - 1; duration = 1000; break; // 2 kHz
-      case 5: OCR0A = 100 - 1; duration = 1250; break; // 2.5 kHz
+    switch(freq) { // all durations are 1/4 sec - so half the frequency
+      case 1: OCR0A = 1000 - 1; duration = 63; break; // 500 Hz.
+      case 2: OCR0A = 500 - 1; duration = 125; break; // 1 kHz
+      case 3: OCR0A = 333 - 1; duration = 187; break; // 1.5 kHz
+      case 4: OCR0A = 250 - 1; duration = 250; break; // 2 kHz
+      case 5: OCR0A = 200 - 1; duration = 312; break; // 2.5 kHz
     }
     beeping = 1;
     TCCR0B = _BV(WGM02) | _BV(CS00); // CTC mode, divide by 1
-    for(start = ticks(); ticks() - start < duration;) {
+    for(tick_cnt = 0; ticks() < duration;) {
       sleep_mode();
     }
     TCCR0B = 0; // stop
@@ -104,11 +106,17 @@ void __ATTR_NORETURN__ main() {
 
     // Next, we wait
 
+    // 128 kHz system clock
+    CCP = 0xd8;
+    CLKPSR = 0; // divide by 1.
+    CCP = 0xd8;
+    CLKMSR = _BV(CLKMS0); // select the 128 kHz clock
+
     TCNT0 = 0;
-    OCR0A = 7812 - 1; // one seconds per interrupt (well, 7812.5, but...)
-    TCCR0B = _BV(WGM02) | _BV(CS01) | _BV(CS00); // CTC mode, divide by 64
-    duration = 3600 - q_rand(1800); // anywhere between 1/2 and 1 hour
-    for(start = ticks(); ticks() - start < duration;) {
+    OCR0A = 125 - 1; // ten seconds per interrupt
+    TCCR0B = _BV(WGM02) | _BV(CS02) | _BV(CS00); // CTC mode, divide by 1024
+    duration = 360 - q_rand(180); // anywhere between 1/2 and 1 hour
+    for(tick_cnt = 0; ticks() < duration;) {
       sleep_mode();
     }
     TCCR0B = 0; // stop
