@@ -111,7 +111,7 @@ void __ATTR_NORETURN__ main() {
     CLKMSR = _BV(CLKMS0); // select the 128 kHz clock
 
     TCNT0 = 0;
-    OCR0A = 125 - 1; // ten seconds per interrupt
+    OCR0A = 1250 - 1; // ten seconds per interrupt
     TCCR0B = _BV(WGM02) | _BV(CS02) | _BV(CS00); // CTC mode, divide by 1024
     duration = 360 - q_rand(180); // anywhere between 1/2 and 1 hour
     for(tick_cnt = 0; ticks() < duration;) {
