@@ -25,8 +25,6 @@
 #include <avr/sleep.h>
 #include <util/atomic.h>
 
-#include <util/delay.h>
-
 volatile uint16_t tick_cnt;
 volatile uint8_t beeping;
 
