@@ -30,7 +30,7 @@ volatile uint8_t beeping;
 
 ISR(TIM0_COMPA_vect) {
   tick_cnt++;
-  if (beeping) PINB |= _BV(02); // toggle
+  if (beeping) PINB |= _BV(2) | _BV(1); // toggle the two pins
 }
 
 // Found this at http://uzebox.org/forums/viewtopic.php?f=3&t=250
@@ -58,8 +58,8 @@ void __ATTR_NORETURN__ main() {
 
   // set up 500 kHz system clock
 
-  PUEB = _BV(0) | _BV(1); // force unused pins to a definite state
-  DDRB = _BV(2); // B2 is the speaker
+  PUEB = _BV(0); // force unused pin to a definite state
+  DDRB = _BV(2) | _BV(1); // B1 / B2 is the speaker
   PORTB = 0; // start off
 
   TCCR0A = 0;
@@ -94,13 +94,14 @@ void __ATTR_NORETURN__ main() {
       case 5: OCR0A = 200 - 1; duration = 312; break; // 2.5 kHz
     }
     beeping = 1;
+    PORTB |= _BV(1); // turn one pin on to start alternating
     TCCR0B = _BV(WGM02) | _BV(CS00); // CTC mode, divide by 1
     for(tick_cnt = 0; ticks() < duration;) {
       sleep_mode();
     }
     TCCR0B = 0; // stop
     beeping = 0;
-    PORTB &= ~(_BV(2)); // force low for idle
+    PORTB &= ~(_BV(2) | _BV(1)); // force both low for idle
 
     // Next, we wait
 
