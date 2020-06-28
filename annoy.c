@@ -1,7 +1,7 @@
 /*
 
  Annoy-o-tron Tiny
- Copyright 2014 Nicholas W. Sayer
+ Copyright 2020 Nicholas W. Sayer
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -87,11 +87,11 @@ void __ATTR_NORETURN__ main() {
     TCCR0B = 0; // stop
     TCNT0 = 0; // reset count
     switch(freq) { // all durations are 1/4 sec - so half the frequency
-      case 1: OCR0A = 500 - 1; duration = 125; break; // 1 kHz
-      case 2: OCR0A = 250 - 1; duration = 250; break; // 2 kHz
-      case 3: OCR0A = 166 - 1; duration = 375; break; // 3 kHz
-      case 4: OCR0A = 125 - 1; duration = 500; break; // 4 kHz
-      case 5: OCR0A = 100 - 1; duration = 625; break; // 5 kHz
+      case 1: OCR0A = 142 - 1; duration = 440; break; // 3520 Hz (A)
+      case 2: OCR0A = 119 - 1; duration = 523; break; // 4186 Hz (C)
+      case 3: OCR0A = 100 - 1; duration = 622; break; // 4978 Hz (Eflat)
+      case 4: OCR0A = 84 - 1; duration = 739; break; // 5919 Hz (Gflat)
+      case 5: OCR0A = 71 - 1; duration = 880; break; // 7040 Hz (A)
     }
     beeping = 1;
     PORTB |= _BV(1); // turn one pin on to start alternating
