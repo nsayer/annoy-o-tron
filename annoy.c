@@ -87,11 +87,11 @@ void __ATTR_NORETURN__ main() {
     TCCR0B = 0; // stop
     TCNT0 = 0; // reset count
     switch(freq) { // all durations are 1/4 sec - so half the frequency
-      case 1: OCR0A = 1000 - 1; duration = 63; break; // 500 Hz.
-      case 2: OCR0A = 500 - 1; duration = 125; break; // 1 kHz
-      case 3: OCR0A = 333 - 1; duration = 187; break; // 1.5 kHz
-      case 4: OCR0A = 250 - 1; duration = 250; break; // 2 kHz
-      case 5: OCR0A = 200 - 1; duration = 312; break; // 2.5 kHz
+      case 1: OCR0A = 500 - 1; duration = 125; break; // 1 kHz
+      case 2: OCR0A = 250 - 1; duration = 250; break; // 2 kHz
+      case 3: OCR0A = 166 - 1; duration = 375; break; // 3 kHz
+      case 4: OCR0A = 125 - 1; duration = 500; break; // 4 kHz
+      case 5: OCR0A = 100 - 1; duration = 625; break; // 5 kHz
     }
     beeping = 1;
     PORTB |= _BV(1); // turn one pin on to start alternating
